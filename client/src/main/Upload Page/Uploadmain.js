@@ -1,8 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { useDropzone } from 'react-dropzone';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 import { Typography } from '@material-ui/core';
 import PublishIcon from '@material-ui/icons/Publish';
+import ArrowRightAltIcon from '@material-ui/icons/ArrowRightAlt';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Builtwithfirebase from '../../assets/builwithfirebase2.png';
 import firebase from "firebase/app"
 import "firebase/firestore"
@@ -49,7 +52,10 @@ const rejectStyle = {
 };
 
 const Uploadmain = () => {
-  const [img, setImg] = useState("");
+  const [original, setOriginal] = useState("");
+  const [processed, setProcessed] = useState("");
+  const [hide, setHide] = useState(0);
+  const [hide1, setHide1] = useState(0);
 
 
   const onDropAccepted = (acceptedFile) => {
@@ -58,16 +64,28 @@ const Uploadmain = () => {
       let reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
-        console.log(event.target.result);
-        setImg(event.target.result)
+        let strImage = event.target.result
+        let base64String = strImage.replace(/^data:image\/[a-z]+;base64,/, "");
+        setOriginal(base64String)
 
         // Save Result to Firestore
         db.collection("process_image").doc("ARJz6gWVWslNCBwQzAgb").set({
-          raw: event.target.result,
+          raw: base64String,
           result: ""
         })
           .then(() => {
             console.log("Document successfully written!");
+            setHide(1)
+            setTimeout(() => {
+              let doc = db.collection('process_image').doc('ARJz6gWVWslNCBwQzAgb');
+              doc.onSnapshot(docSnapshot => {
+                setProcessed(docSnapshot.data().raw)
+                // ...
+              }, err => {
+                console.log(`Encountered error: ${err}`);
+              });
+              setHide1(1)
+            }, 30000)
           })
           .catch((error) => {
             console.error("Error writing document: ", error);
@@ -104,9 +122,9 @@ const Uploadmain = () => {
     <>
       <Grid container>
         <Grid item xs={12} style={{ marginTop: "20px" }}>
-          <Typography variant="h2" style={{ marginLeft: "20px" }}>FireMoji</Typography>
+          <Typography variant="h2" style={{ marginLeft: "20px", color: "#757575"}}>FireMoji</Typography>
         </Grid>
-        <Grid container item xs={12} justify="center">
+        {hide == 0 && <Grid container item xs={12} justify="center" style={{ marginTop: "20px" }}>
           <div>
             <div {...getRootProps({ style })}>
               <Grid container item justify="center">
@@ -117,7 +135,30 @@ const Uploadmain = () => {
             </div>
           </div>
         </Grid>
-        <Grid item xs={12}>
+        }
+        {hide == 1 && hide1 == 0 && <Grid container item xs={12} justify="center" style={{ marginTop: "20px" }}>
+          <CircularProgress size={300} style={{color: '#039BE5'}}/>
+        </Grid>
+        }
+        {hide == 1 && hide1 == 0 && <Grid container item xs={12} justify="center">
+          <Typography variant="h6" style={{color: "#E17177"}}>Sparkyfying!</Typography>
+        </Grid>
+        }
+        {hide1 == 1 && <Grid container item xs={12} style={{ marginTop: "20px" }}>
+          <Grid container item xs={5} justify="center">
+            <img src={`data:image/jpeg;base64,${original}`} style={{height:"300px", width: "400px"}}/>
+          </Grid>
+          <Grid container item xs={2} justify="center" alignItems = "center">
+            <ArrowRightAltIcon style={{ fontSize: "60px", marginTop: "40px" }}/>
+          </Grid>
+          <Grid container item xs={5} justify="center">
+            <img src={`data:image/jpeg;base64,${processed}`} style={{height:"300px", width: "400px"}}/>
+          </Grid>
+          <Grid container item xs={12} justify="center">
+            <Button size="large" variant="contained" onClick={() => { window.location.reload(); }} style={{ color:"#ECEFF1", backgroundColor:"#039BE5"}}>Sparkify Again!</Button>
+          </Grid>
+        </Grid>}
+        <Grid item xs={12} style={{  position: "fixed", left: "0", bottom: "0", width: "100%"}}>
           <img alt="BuiltwithFirebase" src={Builtwithfirebase} style={{ height: "100px", width: "220px", marginLeft: "20px", marginTop: "20px" }}></img>
         </Grid>
         {/* {img && <img src={`${img}`}/>} */}
