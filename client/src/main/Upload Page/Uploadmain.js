@@ -85,7 +85,7 @@ const Uploadmain = () => {
                 console.log(`Encountered error: ${err}`);
               });
               setHide1(1)
-            }, 30000)
+            }, 8000)
           })
           .catch((error) => {
             console.error("Error writing document: ", error);
@@ -122,7 +122,7 @@ const Uploadmain = () => {
     <>
       <Grid container>
         <Grid item xs={12} style={{ marginTop: "20px" }}>
-          <Typography variant="h2" style={{ marginLeft: "20px", color: "#757575"}}>FireMoji</Typography>
+          <Typography variant="h2" style={{ marginLeft: "20px", color: "#757575"}}><strong>SparkyMoji</strong></Typography>
         </Grid>
         {hide == 0 && <Grid container item xs={12} justify="center" style={{ marginTop: "20px" }}>
           <div>
