@@ -85,7 +85,7 @@ const Uploadmain = () => {
                 console.log(`Encountered error: ${err}`);
               });
               setHide1(1)
-            }, 8000)
+            }, 20000)
           })
           .catch((error) => {
             console.error("Error writing document: ", error);
